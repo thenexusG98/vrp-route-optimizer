@@ -9,3 +9,7 @@ VALUES (
     ST_MakeLine(ARRAY[ST_SetSRID(ST_MakePoint(-99.13, 19.43), 4326), ...])
 );
 ```
+
+```
+pip install -r requirements.txt --trusted-host pypi.org --trusted-host files.pythonhosted.org
+```
