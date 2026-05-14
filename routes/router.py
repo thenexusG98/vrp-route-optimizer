@@ -21,7 +21,7 @@ async def optimize_routes(request: OptimizationRequest):
     
     # 3. PASO: Guardar en Base de Datos (PostgreSQL/PostGIS)
     # Persistir la ruta generada para que los conductores la vean.
-    save_routes_to_db(result)
+    await save_routes_to_db(result)
     
     return {
         "status": "success",
