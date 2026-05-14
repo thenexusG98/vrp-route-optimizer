@@ -1,0 +1,50 @@
+services:
+
+  # ---------------------------------------------------------------------------
+  # OSRM — Motor de rutas sobre OpenStreetMap
+  # ---------------------------------------------------------------------------
+  # ANTES de levantar este servicio debes preprocesar el mapa:
+  #
+  #   1. Crear directorio y descargar el mapa (ejemplo: México):
+  #        mkdir -p docker/osrm-data
+  #        wget -O docker/osrm-data/map.osm.pbf \
+  #             https://download.geofabrik.de/north-america/mexico-latest.osm.pbf
+  #
+  #   2. Preprocesar (extraer, particionar y personalizar):
+  #        docker run --rm -v $(pwd)/docker/osrm-data:/data osrm/osrm-backend \
+  #             osrm-extract -p /opt/car.lua /data/map.osm.pbf
+  #        docker run --rm -v $(pwd)/docker/osrm-data:/data osrm/osrm-backend \
+  #             osrm-partition /data/map.osrm
+  #        docker run --rm -v $(pwd)/docker/osrm-data:/data osrm/osrm-backend \
+  #             osrm-customize /data/map.osrm
+  #
+  #   3. Levantar: docker compose up osrm
+  # ---------------------------------------------------------------------------
+  osrm:
+    image: osrm/osrm-backend
+    container_name: rutas-osrm
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./docker/osrm-data:/data
+    command: osrm-routed --algorithm mld /data/map.osrm
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # PostgreSQL + PostGIS — Base de datos geoespacial
+  # ---------------------------------------------------------------------------
+  postgres:
+    image: postgis/postgis:15-3.3
+    container_name: rutas-postgres
+    environment:
+      POSTGRES_USER: rutas
+      POSTGRES_PASSWORD: rutas123
+      POSTGRES_DB: rutas
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
